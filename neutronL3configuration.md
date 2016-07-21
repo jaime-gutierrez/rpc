@@ -66,7 +66,8 @@ nova boot \
     --nic net-id=${NETWORK_UUID} \
     ${INSTANCE_NAME}
 ((INSTANCE_NUM++));
-
+echo -n "Blah"
+nova list --tenant ${TENANT_ID} | grep ${INSTANCE_NAME} | awk '/INSIDE_NET/{print $14}' | sed 's/INSIDE_NET=//'
 INSTANCE_INSIDE_NET_IP=$(nova list --tenant ${TENANT_ID} | grep ${INSTANCE_NAME} | awk '/INSIDE_NET/{print $14}' | sed 's/INSIDE_NET=//')
 echo ${INSTANCE_INSIDE_NET_IP}
 INSTANCE_INSIDE_NET_PORT_ID=$(neutron port-list | grep ${INSTANCE_INSIDE_NET_IP} | awk '{print $2}')
