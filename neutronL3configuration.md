@@ -72,6 +72,7 @@ echo ${INSTANCE_INSIDE_NET_IP}
 INSTANCE_INSIDE_NET_PORT_ID=$(neutron port-list | grep ${INSTANCE_INSIDE_NET_IP} | awk '{print $2}')
 
 neutron floatingip-associate ${FLOATING_IP_ID} ${INSTANCE_INSIDE_NET_PORT_ID}
+
 ````
 
 
