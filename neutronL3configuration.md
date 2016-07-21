@@ -1,13 +1,13 @@
 # Configure Neutron Layer 3 Provider / Tenant Networks with Floating IPs
 
-###EXAMPLE NETWORKS TO CONFIGURE
+###Example provider gateway and tenant inside networks
 ````
 NETWORK         VLAN_ID   NETWORK       TAGGED INTERFACE
 RPC_GATEWAY_NET 239       10.239.0.0/22     (bond1)  (A PROVIDER NETWORK) (INTENET ACCESS)
 RPC_INSIDE_NET  242       10.242.0.0/22     (bond1)  (A TENANT NETWORK)   (NO INTERNET ACCESS)
 ````
 
-### SET VARIABLES FOR PROVIDER AND TENANT NETWORKS YOU WISH TO CREATE
+### Set Variables for Provider and Tenant Networks
 
 ````
 TENANT_ID=<set_variable>
@@ -23,7 +23,7 @@ DNS1=${INSIDE_NET_GW}
 DNS2="8.8.8.8"
 ````
 
-### THEN RUN THE FOLLOWING
+### Run the following
 
 ````
 neutron net-create --provider:physical_network=vlan --provider:network_type=vlan --provider:segmentation_id=${GW_PROVIDER_VLAN_ID} --router:external GATEWAY_NET
@@ -39,12 +39,11 @@ neutron router-gateway-set --enable-snat ${ROUTER_ID} ${GW_NET_ID}
 neutron router-interface-add ${ROUTER_ID} ${INSIDE_SUBNET_ID}
 ````
 
-### CREATE TEST INSTANCE TO UTILIZE A FLOATING IP
+### Create a test instance to test floating ip functionality
 ````
 INSTANCE_NUM=1
 ````
-
-### START BACK HERE ON DOWN TO THE END FOR ADDING MORE INSTANCES
+### Start from here on down to the end if adding more than one instance
 
 ````
 IMAGE=<set_variable>
@@ -67,8 +66,8 @@ for i in server1; do
         --key-name ${SSHKEY} \
         --nic net-id=${NETWORK_UUID} \
         ${INSTANCE_NAME}
-        ((INSTANCE_NUM++))
-done;
+        ((INSTANCE_NUM++));
+done
 
 INSTANCE_INSIDE_NET_IP=$(nova list --tenant ${TENANT_ID} | grep ${INSTANCE_NAME} | awk '/INSIDE_NET/{print $14}' | sed 's/INSIDE_NET=//')
 INSTANCE_INSIDE_NET_PORT_ID=$(neutron port-list | grep ${INSTANCE_INSIDE_NET_IP} | awk '{print $2}')
