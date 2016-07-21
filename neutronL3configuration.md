@@ -40,6 +40,7 @@ neutron router-interface-add ${ROUTER_ID} ${INSIDE_SUBNET_ID}
 ````
 
 ### Create a test instance to test floating ip functionality
+### Set INSTANCE_NUM only once
 ````
 INSTANCE_NUM=1
 ````
@@ -56,19 +57,16 @@ INSTANCE_NAME=$"test-rax-${INSTANCE_NUM}-${COMPUTE_NODE}"
 
 FLOATING_IP_ID=$(neutron floatingip-create --tenant-id ${TENANT_ID} ${GW_NET_ID} | awk  '/ id /{print $4}')
 
-# EDIT LOOP AS NECESSARY
-for i in server1; do
-    COMPUTE_NODE=$i; echo "creating $COMPUTE_NODE"
-    nova boot \
-        --image ${IMAGE} \
-        --flavor ${FLAVOR} \
-        --security-groups ${SECURITY_GROUP} \
-        --availability-zone ${AVAILABILITY_ZONE}:${COMPUTE_NODE} \
-        --key-name ${SSHKEY} \
-        --nic net-id=${NETWORK_UUID} \
-        ${INSTANCE_NAME}
-        ((INSTANCE_NUM++));
-done
+COMPUTE_NODE=server1
+nova boot \
+    --image ${IMAGE} \
+    --flavor ${FLAVOR} \
+    --security-groups ${SECURITY_GROUP} \
+    --availability-zone ${AVAILABILITY_ZONE}:${COMPUTE_NODE} \
+    --key-name ${SSHKEY} \
+    --nic net-id=${NETWORK_UUID} \
+    ${INSTANCE_NAME}
+    ((INSTANCE_NUM++))
 
 INSTANCE_INSIDE_NET_IP=$(nova list --tenant ${TENANT_ID} | grep ${INSTANCE_NAME} | awk '/INSIDE_NET/{print $14}' | sed 's/INSIDE_NET=//')
 INSTANCE_INSIDE_NET_PORT_ID=$(neutron port-list | grep ${INSTANCE_INSIDE_NET_IP} | awk '{print $2}')
