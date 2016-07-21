@@ -8,7 +8,7 @@ RPC_INSIDE_NET  242       10.242.0.0/22     (bond1)  (A TENANT NETWORK)   (NO IN
 ````
 
 ### Set Variables for Provider and Tenant Networks
-### This scenario will setup the networks for the the 'admin' tenant
+This scenario will setup the networks for the the 'admin' tenant
 
 ````
 TENANT_ID=$(openstack project list | awk '/admin/{print $2}')
