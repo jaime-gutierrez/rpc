@@ -47,7 +47,7 @@ INSTANCE_NUM=1
 #### If you decide to add another instance after running everything, start from this point.
 
 ````
-IMAGE=<set_variable>
+IMAGE=$(glance image-list | awk '/Trusty/{print $2}')
 FLAVOR=2
 SECURITY_GROUP=rpc-support
 AVAILABILITY_ZONE=nova
