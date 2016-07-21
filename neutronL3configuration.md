@@ -67,7 +67,8 @@ nova boot \
     ${INSTANCE_NAME}
     ((INSTANCE_NUM++))
 
-INSTANCE_INSIDE_NET_IP=$(nova list --tenant ${TENANT_ID} | grep ${INSTANCE_NAME} | awk '/INSIDE_NET/{print $14}' | sed 's/INSIDE_NET=//')
+INSTANCE_INSIDE_NET_IP=$(nova list --tenant ${TENANT_ID} | grep ${INSTANCE_NAME} | awk '/INSIDE_NET/{print $14}' | sed 's/INSIDE_NET=//g')
+sleep 2;
 INSTANCE_INSIDE_NET_PORT_ID=$(neutron port-list | grep ${INSTANCE_INSIDE_NET_IP} | awk '{print $2}')
 neutron floatingip-associate ${FLOATING_IP_ID} ${INSTANCE_INSIDE_NET_PORT_ID}
 ````
