@@ -53,10 +53,9 @@ SECURITY_GROUP=rpc-support
 AVAILABILITY_ZONE=nova
 SSHKEY=rpc_support
 NETWORK_UUID=${INSIDE_NET_ID}
-INSTANCE_NAME=$"test-rax-${INSTANCE_NUM}-${COMPUTE_NODE}"
 
 FLOATING_IP_ID=$(neutron floatingip-create --tenant-id ${TENANT_ID} ${GW_NET_ID} | awk  '/ id /{print $4}')
-
+INSTANCE_NAME=$"test-rax-${INSTANCE_NUM}-${COMPUTE_NODE}"
 COMPUTE_NODE=server1
 nova boot \
     --image ${IMAGE} \
