@@ -1,4 +1,4 @@
-# Configure Neutron Layer 3 Provider / Tenant Networks with Floating IPs
+# Configure Neutron Layer 3 Provider & Tenant Networks with with Floating IPs
 
 ###Example provider gateway and tenant inside networks
 ````
