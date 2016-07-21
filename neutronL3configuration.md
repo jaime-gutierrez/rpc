@@ -1,0 +1,71 @@
+# NEUTRON LAYER 3 PROVIDER / TENANT NETWORKS CONFIGURATION W/FLOATING IPS
+
+# SET VARIABLES FOR PROVIDER AND TENANT NETWORKS YOU WISH TO CREATE
+
+````
+TENANT_ID=<set_variable>
+GW_PROVIDER_VLAN_ID=239
+GW_PROVIDER_CIDR="10.239.0.0/22"
+GW_PROVIDER_GATEWAY="10.239.0.1"
+GW_PROV_POOL_START_IP="10.239.0.10"
+GW_PROV_POOL_END_IP="10.239.3.254"
+INSIDE_TENANT_VLAN_ID=242
+INSIDE_TENANT_CIDR="10.242.0.0/22"
+INSIDE_NET_GW="10.242.0.1"
+DNS1=${INSIDE_NET_GW}
+DNS2="8.8.8.8"
+````
+
+# THEN RUN THE FOLLOWING
+
+````
+neutron net-create --provider:physical_network=vlan --provider:network_type=vlan --provider:segmentation_id=${GW_PROVIDER_VLAN_ID} --router:external GATEWAY_NET
+GW_NET_ID=$(neutron net-list | awk '/GATEWAY/{print $2}')
+neutron net-create --provider:physical_network=vlan --provider:network_type=vlan --provider:segmentation_id=${INSIDE_TENANT_VLAN_ID} --tenant-id ${TENANT_ID} INSIDE_NET
+INSIDE_NET_ID=$(neutron net-list | awk '/INSIDE/{print $2}')
+neutron subnet-create GATEWAY_NET ${GW_PROVIDER_CIDR} --name GATEWAY_SUBNET --gateway=${GW_PROVIDER_GATEWAY} --allocation-pool start=${GW_PROV_POOL_START_IP},end=${GW_PROV_POOL_END_IP}  --enable_dhcp false
+neutron subnet-create INSIDE_NET ${INSIDE_TENANT_CIDR} --name INSIDE_SUBNET --dns-nameservers list=true ${DNS1} ${DNS2}
+INSIDE_SUBNET_ID=$(neutron subnet-list | awk '/INSIDE_SUBNET/{print $2}')
+neutron router-create RTR-PUBLIC --ha False
+ROUTER_ID=$(neutron router-list | awk '/RTR-PUBLIC/{print $2}')
+neutron router-gateway-set --enable-snat ${ROUTER_ID} ${GW_NET_ID}
+neutron router-interface-add ${ROUTER_ID} ${INSIDE_SUBNET_ID}
+````
+
+# CREATE TEST INSTANCE TO UTILIZE A FLOATING IP
+````
+INSTANCE_NUM=1
+````
+
+# START BACK HERE ON DOWN TO THE END FOR ADDING MORE INSTANCES
+
+````
+IMAGE=<set_variable>
+FLAVOR=2
+SECURITY_GROUP=rpc-support
+AVAILABILITY_ZONE=nova
+SSHKEY=rpc_support
+NETWORK_UUID=${INSIDE_NET_ID}
+INSTANCE_NAME=$"test-rax-${INSTANCE_NUM}-${COMPUTE_NODE}"
+
+FLOATING_IP_ID=$(neutron floatingip-create --tenant-id ${TENANT_ID} ${GW_NET_ID} | awk  '/ id /{print $4}')
+
+for i in server1; do
+    COMPUTE_NODE=$i; echo "creating $COMPUTE_NODE"
+    nova boot \
+        --image ${IMAGE} \
+        --flavor ${FLAVOR} \
+        --security-groups ${SECURITY_GROUP} \
+        --availability-zone ${AVAILABILITY_ZONE}:${COMPUTE_NODE} \
+        --key-name ${SSHKEY} \
+        --nic net-id=${NETWORK_UUID} \
+        ${INSTANCE_NAME}
+        ((INSTANCE_NUM++))
+done;
+
+INSTANCE_INSIDE_NET_IP=$(nova list --tenant ${TENANT_ID} | grep ${INSTANCE_NAME} | awk '/INSIDE_NET/{print $14}' | sed 's/INSIDE_NET=//')
+INSTANCE_INSIDE_NET_PORT_ID=$(neutron port-list | grep ${INSTANCE_INSIDE_NET_IP} | awk '{print $2}')
+neutron floatingip-associate ${FLOATING_IP_ID} ${INSTANCE_INSIDE_NET_PORT_ID}
+````
+
+
