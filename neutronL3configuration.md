@@ -43,7 +43,7 @@ neutron router-interface-add ${ROUTER_ID} ${INSIDE_SUBNET_ID}
 ````
 INSTANCE_NUM=1
 ````
-### Start from here on down to the end if adding more than one instance
+#### If you decide to add another instance after running everything, start from this point.
 
 ````
 IMAGE=<set_variable>
