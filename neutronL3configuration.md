@@ -56,6 +56,7 @@ INSTANCE_NAME=$"test-rax-${INSTANCE_NUM}-${COMPUTE_NODE}"
 
 FLOATING_IP_ID=$(neutron floatingip-create --tenant-id ${TENANT_ID} ${GW_NET_ID} | awk  '/ id /{print $4}')
 
+# EDIT LOOP AS NECESSARY
 for i in server1; do
     COMPUTE_NODE=$i; echo "creating $COMPUTE_NODE"
     nova boot \
