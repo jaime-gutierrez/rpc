@@ -40,7 +40,7 @@ neutron router-interface-add ${ROUTER_ID} ${INSIDE_SUBNET_ID}
 ````
 
 ### Create a test instance and floating ip
-### Set INSTANCE_NUM only once
+#### Set INSTANCE_NUM only once
 ````
 INSTANCE_NUM=1
 ````
