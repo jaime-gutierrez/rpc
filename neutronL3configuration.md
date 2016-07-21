@@ -39,7 +39,7 @@ neutron router-gateway-set --enable-snat ${ROUTER_ID} ${GW_NET_ID}
 neutron router-interface-add ${ROUTER_ID} ${INSIDE_SUBNET_ID}
 ````
 
-### Create a test instance to test floating ip functionality
+### Create a test instance and floating ip
 ### Set INSTANCE_NUM only once
 ````
 INSTANCE_NUM=1
