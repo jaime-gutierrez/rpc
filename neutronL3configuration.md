@@ -24,7 +24,7 @@ DNS1=${INSIDE_NET_GW}
 DNS2="8.8.8.8"
 ````
 
-### Run the following
+### Create networks, subnets, and router
 
 ````
 neutron net-create --provider:physical_network=vlan --provider:network_type=vlan --provider:segmentation_id=${GW_PROVIDER_VLAN_ID} --router:external GATEWAY_NET
